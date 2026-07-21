@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTable();
     });
 
-    const formatCurrency = (val) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(val);
+    const formatCurrency = (val) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(val);
 
     salesForm.addEventListener('submit', async (e) => {
         e.preventDefault();
