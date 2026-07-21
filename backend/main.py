@@ -131,7 +131,7 @@ Please provide a detailed analysis explaining the possible reasons for this {sta
 Provide actionable insights or strategic recommendations for future growth. The analysis should be comprehensive, easy to understand for a business owner, and structured clearly."""
 
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-1.5-flash',
             contents=prompt,
         )
         return response.text
