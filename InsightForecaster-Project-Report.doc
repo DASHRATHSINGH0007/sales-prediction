@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>InsightForecaster - Project Report</title>
+  <style>
+    body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #111; }
+    h1 { font-size: 20pt; margin: 0 0 8pt 0; }
+    h2 { font-size: 14pt; margin: 18pt 0 6pt 0; border-bottom: 1px solid #ddd; padding-bottom: 4pt; }
+    h3 { font-size: 12pt; margin: 12pt 0 4pt 0; }
+    p { margin: 0 0 8pt 0; line-height: 1.25; }
+    ul { margin: 0 0 8pt 18pt; }
+    li { margin: 0 0 4pt 0; }
+    code, pre { font-family: Consolas, "Courier New", monospace; }
+    pre { background: #f6f8fa; padding: 10pt; border: 1px solid #e5e7eb; border-radius: 6pt; overflow-x: auto; }
+    .meta { color: #555; }
+    .kbd { font-family: Consolas, "Courier New", monospace; border: 1px solid #ccc; padding: 1px 5px; border-radius: 4px; background: #fafafa; }
+    .warn { background: #fff3cd; border: 1px solid #ffeeba; padding: 8pt; border-radius: 6pt; }
+    .ok { background: #d1e7dd; border: 1px solid #badbcc; padding: 8pt; border-radius: 6pt; }
+    table { border-collapse: collapse; width: 100%; margin: 6pt 0 10pt 0; }
+    th, td { border: 1px solid #e5e7eb; padding: 6pt; text-align: left; vertical-align: top; }
+    th { background: #f3f4f6; }
+  </style>
+</head>
+<body>
+  <h1>InsightForecaster — Project Report</h1>
+  <p class="meta">
+    Project type: Next.js (React) web application<br/>
+    Repository location: <code>c:\Users\dashrath singh\Downloads\download</code><br/>
+    Report date: <span id="reportDate">2026-03-15</span>
+  </p>
+
+  <h2>1. Executive Summary</h2>
+  <p>
+    InsightForecaster is a web application that forecasts next-month sales using a simple client-side Machine Learning model (Linear Regression),
+    calculates financial metrics (revenue, cost, profit/loss), and (optionally) generates an AI-powered loss analysis using Genkit + Google Gemini
+    when a loss is detected.
+  </p>
+
+  <h2>2. Objectives</h2>
+  <ul>
+    <li>Allow a user to enter monthly historical sales data (units sold, cost price, selling price).</li>
+    <li>Predict next month units sold using a lightweight trend model.</li>
+    <li>Compute key financial outputs (revenue, cost, profit/loss) from the predicted units and average prices.</li>
+    <li>When the result indicates a loss, produce a structured analysis and recommendations using a GenAI model.</li>
+  </ul>
+
+  <h2>3. Technology Stack</h2>
+  <table>
+    <tr><th>Layer</th><th>Technology</th><th>Notes</th></tr>
+    <tr><td>Frontend</td><td>Next.js 14 (App Router), React 18, TypeScript</td><td>UI pages in <code>src/app</code></td></tr>
+    <tr><td>Styling</td><td>Tailwind CSS</td><td>Theme variables in <code>src/app/globals.css</code></td></tr>
+    <tr><td>UI components</td><td>Radix UI primitives + Shadcn-style components</td><td>Components in <code>src/components/ui</code></td></tr>
+    <tr><td>Charts</td><td>Recharts</td><td>Area chart for historical + predicted values</td></tr>
+    <tr><td>Icons</td><td>lucide-react</td><td>App header + feature cards + metric icons</td></tr>
+    <tr><td>GenAI</td><td>Genkit + <code>@genkit-ai/google-genai</code></td><td>Server action flow for loss analysis</td></tr>
+  </table>
+
+  <h2>4. Project Structure</h2>
+  <ul>
+    <li><code>src/app</code>: Next.js App Router entry points (<code>layout.tsx</code>, <code>page.tsx</code>, <code>globals.css</code>)</li>
+    <li><code>src/components</code>: UI and domain components</li>
+    <li><code>src/components/sales</code>: Sales form, chart, and dashboard</li>
+    <li><code>src/lib</code>: Utilities and ML/metrics logic (<code>ml-utils.ts</code>)</li>
+    <li><code>src/ai</code>: Genkit setup and flows (loss analysis)</li>
+  </ul>
+
+  <h2>5. Core Features</h2>
+  <h3>5.1 Sales data input</h3>
+  <p>
+    Users input multiple months of sales data. The UI supports adding/removing rows and editing month/unit/cost/selling values.
+  </p>
+
+  <h3>5.2 Prediction model</h3>
+  <p>
+    The app uses a simple linear regression (trend line) over the historical <code>unitsSold</code> series and predicts the next month.
+    The predicted units are clamped to a minimum of 0.
+  </p>
+
+  <h3>5.3 Financial metrics</h3>
+  <p>
+    The app computes:
+  </p>
+  <ul>
+    <li><b>Total Revenue</b> = predictedUnits × avgSellingPrice</li>
+    <li><b>Total Cost</b> = predictedUnits × avgCostPrice</li>
+    <li><b>Profit/Loss</b> = Total Revenue − Total Cost</li>
+  </ul>
+
+  <h3>5.4 Visualization</h3>
+  <p>
+    Historical units sold and the predicted value are rendered in a Recharts AreaChart for quick trend inspection.
+  </p>
+
+  <h3>5.5 AI loss analysis (Genkit)</h3>
+  <p>
+    If the computed profit/loss is negative, a Genkit server flow generates a detailed loss analysis and suggestions
+    (low selling price, high cost price, declining sales trend, profit margin).
+  </p>
+
+  <h2>6. Key Implementation Notes</h2>
+  <ul>
+    <li>Path aliases are used: <code>@/...</code> resolves to <code>src/...</code>.</li>
+    <li>The loss analysis flow is a server action (<code>'use server'</code>).</li>
+    <li>The main UI page is a client component (<code>'use client'</code>) handling state and invoking the server flow.</li>
+  </ul>
+
+  <h2>7. How to Run (Local)</h2>
+  <div class="ok">
+    <p><b>Project folder to run:</b> <code>c:\Users\dashrath singh\Downloads\download</code> (the folder that contains <code>package.json</code>).</p>
+  </div>
+
+  <h3>7.1 Install</h3>
+  <pre>cd "c:\Users\dashrath singh\Downloads\download"
+npm install</pre>
+
+  <h3>7.2 Start (Dev)</h3>
+  <pre>npm run dev</pre>
+  <p>Open in a browser:</p>
+  <ul>
+    <li><code>http://localhost:3000</code></li>
+    <li>If needed: <code>http://127.0.0.1:3000</code></li>
+  </ul>
+
+  <h3>7.3 Build + Start (Production)</h3>
+  <pre>npm run build
+npm run start</pre>
+
+  <h2>8. Configuration for AI (Genkit / Google)</h2>
+  <div class="warn">
+    <p>
+      The AI analysis requires a Google GenAI API key / credentials depending on your Genkit setup.
+      If not configured, the app may still run but the AI analysis will fail and show a fallback message.
+    </p>
+  </div>
+  <p>
+    Add the required environment variables in a file named <code>.env.local</code> in the project root (same folder as <code>package.json</code>).
+    The exact variable names depend on your Genkit + Google provider configuration.
+  </p>
+
+  <h2>9. Known Issues / Troubleshooting</h2>
+  <ul>
+    <li><b>Connection failed / site can’t be reached</b>: Ensure <code>npm run dev</code> is running and shows the local URL, then open that URL in Chrome.</li>
+    <li><b>Failed to compile</b>: Usually caused by missing dependencies or path alias config. Re-run <code>npm install</code> and restart <code>npm run dev</code>.</li>
+    <li><b>Port already in use</b>: Start on another port:
+      <pre>npm run dev -- -p 3001 -H 0.0.0.0</pre>
+      Then open <code>http://127.0.0.1:3001</code>.
+    </li>
+  </ul>
+
+  <h2>10. Conclusion</h2>
+  <p>
+    InsightForecaster provides a clean workflow: enter sales history, generate a trend-based forecast, review financial metrics, visualize the result,
+    and (when needed) receive AI-generated loss analysis and recommendations.
+  </p>
+
+  <script>
+    // Set report date at open time (Word will ignore or keep it; safe fallback).
+    try { document.getElementById('reportDate').innerText = new Date().toISOString().slice(0,10); } catch (e) {}
+  </script>
+</body>
+</html>
+

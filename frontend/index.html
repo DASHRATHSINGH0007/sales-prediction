@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InsightForecaster - Predictive Intelligence</title>
+    <meta name="description" content="Predict future sales and get financial analysis using AI and linear regression.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="glass-header">
+        <div class="container header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+                </div>
+                <div class="logo-text">
+                    <h1>InsightForecaster</h1>
+                    <span class="subtitle">Predictive Intelligence</span>
+                </div>
+            </div>
+            <nav class="desktop-nav">
+                <a href="#" class="active">Dashboard</a>
+                <a href="#">Reports</a>
+                <a href="#">History</a>
+            </nav>
+            <div class="secure-badge">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                Secure Data
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero-section">
+            <div class="container">
+                <div class="hero-text">
+                    <h2>Master Your <span class="highlight">Sales Future</span> with Predictive AI.</h2>
+                    <p>Input your historical data and let our machine learning model project future sales while our AI provides deep financial loss analysis and strategy optimization.</p>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <!-- Form Column -->
+                    <div class="glass-card form-card">
+                        <div class="card-header">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                            <h3>Enter Historical Sales Data</h3>
+                            <p>Provide at least 2-3 months of data for better prediction accuracy.</p>
+                        </div>
+                        <form id="salesForm">
+                            <div class="table-container">
+                                <table id="salesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Month</th>
+                                            <th>Units Sold</th>
+                                            <th>Cost Price ($)</th>
+                                            <th>Selling Price ($)</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="salesTableBody">
+                                        <!-- Rows added by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" id="addRowBtn" class="btn-outline">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    Add Month
+                                </button>
+                                <button type="submit" id="submitBtn" class="btn-primary">Generate Prediction</button>
+                            </div>
+                            
+                            <div class="info-box">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                <p>InsightForecaster uses a Linear Regression model to identify trends in your historical unit sales and calculates potential profit or loss based on your unit prices.</p>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Results Column -->
+                    <div class="results-column">
+                        <div id="emptyState" class="empty-state">
+                            <div class="icon-wrapper">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                            </div>
+                            <h3>No Prediction Yet</h3>
+                            <p>Enter your historical sales data in the form to generate a future prediction and detailed financial report.</p>
+                        </div>
+
+                        <div id="resultsDashboard" class="results-dashboard hidden">
+                            <div class="metrics-grid">
+                                <div class="metric-card">
+                                    <div class="metric-header">
+                                        <div>
+                                            <span class="metric-title">Predicted Sales</span>
+                                            <h4 class="metric-value" id="predUnits">0</h4>
+                                            <span class="metric-subtitle">Units for next month</span>
+                                        </div>
+                                        <div class="metric-icon blue">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-header">
+                                        <div>
+                                            <span class="metric-title">Total Revenue</span>
+                                            <h4 class="metric-value" id="predRevenue">$0.00</h4>
+                                            <span class="metric-subtitle">Expected gross income</span>
+                                        </div>
+                                        <div class="metric-icon aqua">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-header">
+                                        <div>
+                                            <span class="metric-title">Total Cost</span>
+                                            <h4 class="metric-value" id="predCost">$0.00</h4>
+                                            <span class="metric-subtitle">Expected expenditures</span>
+                                        </div>
+                                        <div class="metric-icon muted">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="metric-card" id="profitCard">
+                                    <div class="metric-header">
+                                        <div>
+                                            <span class="metric-title" id="profitLabel">Estimated Profit</span>
+                                            <h4 class="metric-value" id="predProfit">$0.00</h4>
+                                            <span class="metric-subtitle" id="profitSubtitle">Healthy growth</span>
+                                        </div>
+                                        <div class="metric-icon green" id="profitIcon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="glass-card chart-card">
+                                <div class="chart-container">
+                                    <canvas id="salesChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div id="aiAnalysisCard" class="glass-card ai-card">
+                                <div class="ai-header">
+                                    <div class="ai-title">
+                                        <svg id="aiIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                        <h3 id="aiTitleText">AI Strategic Insights</h3>
+                                    </div>
+                                    <span class="badge" id="aiBadge">AI Powered</span>
+                                </div>
+                                <div class="ai-content">
+                                    <div id="aiLoader" class="skeleton-loader hidden">
+                                        <div class="skeleton-line" style="width: 75%"></div>
+                                        <div class="skeleton-line" style="width: 100%"></div>
+                                        <div class="skeleton-line" style="width: 85%"></div>
+                                    </div>
+                                    <div id="aiText" class="ai-text">
+                                        <!-- AI analysis injected here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="features-section container">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                </div>
+                <h4>Linear Regression</h4>
+                <p>Our model analyzes your sales velocity and calculates the line of best fit to project future demand accurately.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                </div>
+                <h4>Financial Accuracy</h4>
+                <p>Automatic calculation of revenue, cost, and profit margins to give you a clear picture of your business health.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <h4>GenAI Insights</h4>
+                <p>If a loss is detected, our advanced AI analyzes price-to-cost ratios and sales trends to provide actionable solutions.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container text-center">
+            <p>&copy; <span id="year"></span> InsightForecaster. Built for modern financial clarity.</p>
+        </div>
+    </footer>
+    
+    <script src="script.js"></script>
+</body>
+</html>
