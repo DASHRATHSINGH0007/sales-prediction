@@ -3,176 +3,2620 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Login - InsightForecaster</title>
-    
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="style.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
+          rel="stylesheet">
+
     <style>
-        .login-container {
+
+        /* =========================================================
+           GLOBAL
+        ========================================================= */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #3b82f6;
+            --primary-light: #60a5fa;
+            --purple: #8b5cf6;
+            --cyan: #22d3ee;
+
+            --text: #ffffff;
+            --text-muted: #b8c7e6;
+
+            --glass: rgba(15, 35, 75, 0.48);
+            --glass-border: rgba(255, 255, 255, 0.16);
+
+            --danger: #ff6b6b;
+        }
+
+        body {
             min-height: 100vh;
+            font-family: "Inter", sans-serif;
+            color: var(--text);
+            overflow-x: hidden;
+
+            background:
+                radial-gradient(
+                    circle at 15% 30%,
+                    rgba(37, 99, 235, 0.30),
+                    transparent 32%
+                ),
+                radial-gradient(
+                    circle at 85% 25%,
+                    rgba(124, 58, 237, 0.25),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 50% 100%,
+                    rgba(6, 182, 212, 0.18),
+                    transparent 35%
+                ),
+                linear-gradient(
+                    135deg,
+                    #031431 0%,
+                    #071b42 45%,
+                    #050e27 100%
+                );
+
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+
+            background:
+                linear-gradient(
+                    115deg,
+                    transparent 40%,
+                    rgba(59, 130, 246, 0.08) 50%,
+                    transparent 60%
+                );
+
+            animation: backgroundMove 12s ease-in-out infinite alternate;
+        }
+
+        @keyframes backgroundMove {
+            from {
+                transform: translateX(-10%);
+            }
+
+            to {
+                transform: translateX(10%);
+            }
+        }
+
+
+        /* =========================================================
+           HEADER / BRAND
+        ========================================================= */
+
+        .brand {
+            position: fixed;
+            top: 38px;
+            left: 55px;
+            z-index: 20;
+
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-icon {
+            width: 48px;
+            height: 48px;
+
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+
+            color: #60a5fa;
+
+            filter:
+                drop-shadow(0 0 12px rgba(59, 130, 246, 0.6));
         }
+
+        .brand-name {
+            font-family: "Outfit", sans-serif;
+            font-size: 29px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-name span {
+            color: #60a5fa;
+        }
+
+        .brand-tagline {
+            margin-top: 3px;
+            font-size: 14px;
+            color: #86b8ff;
+        }
+
+
+        /* =========================================================
+           TOP RIGHT QUOTE
+        ========================================================= */
+
+        .quote {
+            position: fixed;
+            top: 55px;
+            right: 55px;
+            z-index: 20;
+
+            text-align: right;
+            font-size: 15px;
+            line-height: 1.5;
+
+            color: #dbeafe;
+            font-style: italic;
+        }
+
+        .quote-line {
+            width: 65px;
+            height: 2px;
+
+            margin-top: 8px;
+            margin-left: auto;
+
+            background: linear-gradient(
+                90deg,
+                transparent,
+                #60a5fa
+            );
+        }
+
+
+        /* =========================================================
+           MAIN LAYOUT
+        ========================================================= */
+
+        .login-container {
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 100px 30px 80px;
+
+            position: relative;
+            z-index: 5;
+        }
+
+        .dashboard-layout {
+            width: 100%;
+            max-width: 1420px;
+
+            display: grid;
+
+            grid-template-columns:
+                minmax(280px, 1fr)
+                500px
+                minmax(280px, 1fr);
+
+            gap: 38px;
+
+            align-items: center;
+        }
+
+
+        /* =========================================================
+           CHART COLUMNS
+        ========================================================= */
+
+        .chart-column {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .left-column {
+            align-items: flex-end;
+        }
+
+        .right-column {
+            align-items: flex-start;
+        }
+
+
+        /* =========================================================
+           CHART CARD
+        ========================================================= */
+
+        .chart-card {
+            width: 100%;
+            max-width: 440px;
+
+            padding: 22px;
+
+            border-radius: 18px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(20, 54, 112, 0.62),
+                    rgba(8, 24, 57, 0.48)
+                );
+
+            border: 1px solid rgba(147, 197, 253, 0.20);
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.20),
+                inset 0 1px 0 rgba(255,255,255,0.07);
+
+            transition:
+                transform 0.35s ease,
+                border-color 0.35s ease;
+
+            animation: floatCard 5s ease-in-out infinite;
+        }
+
+        .chart-card:nth-child(2) {
+            animation-delay: -2s;
+        }
+
+        .right-column .chart-card:nth-child(1) {
+            animation-delay: -1s;
+        }
+
+        .right-column .chart-card:nth-child(2) {
+            animation-delay: -3s;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-7px) scale(1.01);
+
+            border-color:
+                rgba(96, 165, 250, 0.45);
+        }
+
+        @keyframes floatCard {
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-7px);
+            }
+        }
+
+
+        /* =========================================================
+           CHART HEADER
+        ========================================================= */
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 16px;
+        }
+
+        .chart-title {
+            font-family: "Outfit", sans-serif;
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .chart-period {
+            font-size: 11px;
+            color: #9fb5d9;
+
+            padding: 5px 9px;
+
+            border-radius: 7px;
+
+            background: rgba(255,255,255,0.06);
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 13px;
+
+            font-size: 11px;
+            color: #a9bad8;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+        }
+
+        .actual-dot {
+            background: #22d3ee;
+        }
+
+        .forecast-dot {
+            background: #a78bfa;
+        }
+
+
+        /* =========================================================
+           LINE CHART
+        ========================================================= */
+
+        .line-chart {
+            width: 100%;
+            height: 175px;
+        }
+
+        .line-chart svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .grid-line {
+            stroke: rgba(255,255,255,0.08);
+            stroke-width: 1;
+        }
+
+        .axis-label {
+            fill: #8297bc;
+            font-size: 9px;
+        }
+
+        .revenue-line {
+            fill: none;
+
+            stroke: #60a5fa;
+            stroke-width: 3;
+
+            stroke-linecap: round;
+            stroke-linejoin: round;
+
+            filter:
+                drop-shadow(
+                    0 0 6px rgba(96,165,250,0.55)
+                );
+
+            stroke-dasharray: 700;
+            stroke-dashoffset: 700;
+
+            animation:
+                drawLine 2.5s ease forwards;
+        }
+
+        @keyframes drawLine {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .line-area {
+            fill: url(#areaGradient);
+            opacity: 0.35;
+        }
+
+        .data-point {
+            fill: #fff;
+            stroke: #60a5fa;
+            stroke-width: 3;
+
+            filter:
+                drop-shadow(
+                    0 0 6px rgba(96,165,250,0.8)
+                );
+        }
+
+        .revenue-value {
+            fill: #fff;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+
+        /* =========================================================
+           BAR CHART
+        ========================================================= */
+
+        .bar-chart {
+            height: 180px;
+
+            display: flex;
+            align-items: flex-end;
+
+            gap: 20px;
+
+            padding: 10px 5px 0;
+        }
+
+        .bar-item {
+            flex: 1;
+            height: 100%;
+
+            display: flex;
+            flex-direction: column;
+
+            justify-content: flex-end;
+            align-items: center;
+
+            gap: 7px;
+        }
+
+        .bar-value {
+            font-size: 10px;
+            font-weight: 600;
+            color: #eaf2ff;
+        }
+
+        .bar {
+            width: 42px;
+            max-width: 80%;
+
+            border-radius:
+                7px 7px 2px 2px;
+
+            background:
+                linear-gradient(
+                    to top,
+                    #2563eb,
+                    #60a5fa
+                );
+
+            box-shadow:
+                0 0 18px rgba(59,130,246,0.30);
+
+            transform-origin: bottom;
+
+            animation:
+                growBar 1.2s ease forwards;
+        }
+
+        .bar:nth-child(2) {
+            background:
+                linear-gradient(
+                    to top,
+                    #7c3aed,
+                    #a78bfa
+                );
+        }
+
+        .bar:nth-child(3) {
+            background:
+                linear-gradient(
+                    to top,
+                    #059669,
+                    #34d399
+                );
+        }
+
+        .bar:nth-child(4) {
+            background:
+                linear-gradient(
+                    to top,
+                    #ea580c,
+                    #fb923c
+                );
+        }
+
+        @keyframes growBar {
+            from {
+                transform: scaleY(0);
+            }
+
+            to {
+                transform: scaleY(1);
+            }
+        }
+
+        .bar-label {
+            color: #9db0d0;
+            font-size: 9px;
+            text-align: center;
+        }
+
+
+        /* =========================================================
+           DONUT CHART
+        ========================================================= */
+
+        .distribution {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+
+        .donut {
+            width: 150px;
+            height: 150px;
+
+            flex-shrink: 0;
+
+            border-radius: 50%;
+
+            background:
+                conic-gradient(
+                    #3b82f6 0 35%,
+                    #8b5cf6 35% 60%,
+                    #10b981 60% 80%,
+                    #fb923c 80% 92%,
+                    #64748b 92% 100%
+                );
+
+            position: relative;
+
+            filter:
+                drop-shadow(
+                    0 0 15px rgba(59,130,246,0.22)
+                );
+
+            animation:
+                rotateDonut 1.5s ease;
+        }
+
+        @keyframes rotateDonut {
+            from {
+                transform: rotate(-90deg) scale(0.8);
+            }
+
+            to {
+                transform: rotate(0) scale(1);
+            }
+        }
+
+        .donut::after {
+            content: "";
+
+            position: absolute;
+
+            width: 82px;
+            height: 82px;
+
+            top: 50%;
+            left: 50%;
+
+            transform: translate(-50%, -50%);
+
+            border-radius: 50%;
+
+            background: #102957;
+
+            box-shadow:
+                inset 0 0 15px rgba(0,0,0,0.20);
+        }
+
+        .donut-center {
+            position: absolute;
+
+            z-index: 2;
+
+            inset: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            flex-direction: column;
+        }
+
+        .donut-center small {
+            color: #91a7ca;
+            font-size: 9px;
+        }
+
+        .donut-center strong {
+            font-size: 15px;
+            margin-top: 2px;
+        }
+
+        .distribution-list {
+            flex: 1;
+
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+        }
+
+        .distribution-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            font-size: 11px;
+        }
+
+        .distribution-name {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+
+            color: #c2d0e8;
+        }
+
+        .distribution-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 3px;
+        }
+
+        .d-blue {
+            background: #3b82f6;
+        }
+
+        .d-purple {
+            background: #8b5cf6;
+        }
+
+        .d-green {
+            background: #10b981;
+        }
+
+        .d-orange {
+            background: #fb923c;
+        }
+
+        .d-gray {
+            background: #64748b;
+        }
+
+
+        /* =========================================================
+           LOGIN CARD
+        ========================================================= */
+
         .login-card {
             width: 100%;
-            max-width: 400px;
-            padding: 2.5rem;
+
+            padding: 40px 42px;
+
+            border-radius: 25px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(238, 246, 255, 0.90),
+                    rgba(207, 224, 249, 0.84)
+                );
+
+            border:
+                1px solid rgba(255,255,255,0.75);
+
+            box-shadow:
+                0 35px 90px rgba(0,0,0,0.35),
+                0 0 45px rgba(96,165,250,0.15);
+
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+
+            color: #0c2452;
+
+            position: relative;
+            z-index: 10;
         }
+
+        .login-card::before {
+            content: "";
+
+            position: absolute;
+
+            inset: 1px;
+
+            border-radius: 24px;
+
+            pointer-events: none;
+
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.8);
+        }
+
+
+        /* =========================================================
+           LOGIN LOGO
+        ========================================================= */
+
+        .login-logo {
+            display: flex;
+            justify-content: center;
+
+            margin-bottom: 14px;
+        }
+
+        .login-logo-icon {
+            width: 72px;
+            height: 72px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: #2563eb;
+
+            filter:
+                drop-shadow(
+                    0 8px 12px rgba(37,99,235,0.20)
+                );
+        }
+
+
+        /* =========================================================
+           LOGIN HEADER
+        ========================================================= */
+
         .login-header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 30px;
         }
+
+        .login-header h1 {
+            font-family: "Outfit", sans-serif;
+
+            font-size: 25px;
+
+            font-weight: 700;
+
+            letter-spacing: -0.5px;
+
+            color: #102d61;
+
+            margin-bottom: 4px;
+        }
+
+        .login-header .mini-tagline {
+            color: #31558d;
+            font-size: 12px;
+            margin-bottom: 22px;
+        }
+
+        .login-header h2 {
+            font-family: "Outfit", sans-serif;
+
+            font-size: 30px;
+
+            color: #0c2452;
+
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #55709e;
+            font-size: 14px;
+        }
+
+
+        /* =========================================================
+           FORM
+        ========================================================= */
+
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 19px;
         }
+
         .form-group label {
             display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
+
+            margin-bottom: 7px;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            color: #31517f;
         }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+
+            left: 15px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            color: #5273a7;
+
+            width: 18px;
+            height: 18px;
+        }
+
         .form-group input {
             width: 100%;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            border: 1px solid var(--border-color);
-            background: rgba(255, 255, 255, 0.5);
+
+            height: 53px;
+
+            padding:
+                0 15px 0 45px;
+
+            border-radius: 12px;
+
+            border:
+                1px solid rgba(74, 111, 166, 0.25);
+
+            background:
+                rgba(255,255,255,0.48);
+
+            color: #142e58;
+
             font-family: inherit;
+
+            font-size: 14px;
+
+            outline: none;
+
+            transition:
+                border-color 0.25s,
+                box-shadow 0.25s,
+                background 0.25s;
         }
+
+        .form-group input::placeholder {
+            color: #7890b5;
+        }
+
+        .form-group input:focus {
+            border-color: #3b82f6;
+
+            background:
+                rgba(255,255,255,0.75);
+
+            box-shadow:
+                0 0 0 4px rgba(59,130,246,0.10);
+        }
+
+
+        /* =========================================================
+           PASSWORD TOGGLE
+        ========================================================= */
+
+        .password-toggle {
+            position: absolute;
+
+            right: 14px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            border: none;
+
+            background: none;
+
+            color: #5b77a2;
+
+            cursor: pointer;
+
+            padding: 4px;
+        }
+
+
+        /* =========================================================
+           ERROR
+        ========================================================= */
+
+        .error-message {
+            color: #dc2626;
+
+            font-size: 12px;
+
+            text-align: center;
+
+            margin-bottom: 14px;
+
+            padding: 8px;
+
+            border-radius: 8px;
+
+            background:
+                rgba(254,226,226,0.75);
+
+            display: none;
+        }
+
+
+        /* =========================================================
+           LOGIN BUTTON
+        ========================================================= */
+
+        .btn-primary {
+            width: 100%;
+
+            height: 53px;
+
+            border: none;
+
+            border-radius: 12px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #3b82f6
+                );
+
+            color: white;
+
+            font-family: "Inter", sans-serif;
+
+            font-size: 15px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 9px 25px rgba(37,99,235,0.28);
+
+            transition:
+                transform 0.2s,
+                box-shadow 0.2s,
+                opacity 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 13px 30px rgba(37,99,235,0.35);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+
+        /* =========================================================
+           SIGN UP TOGGLE
+        ========================================================= */
+
         .auth-toggle {
             text-align: center;
-            margin-top: 1.5rem;
-            font-size: 0.875rem;
+
+            margin-top: 22px;
+
+            font-size: 12px;
+
+            color: #55709e;
         }
+
         .auth-toggle a {
-            color: var(--primary-color);
+            color: #2563eb;
+
             text-decoration: none;
-            font-weight: 500;
+
+            font-weight: 700;
+
+            margin-left: 4px;
         }
+
         .auth-toggle a:hover {
             text-decoration: underline;
         }
-        .error-message {
-            color: var(--danger-color);
-            font-size: 0.875rem;
-            text-align: center;
-            margin-bottom: 1rem;
-            display: none;
+
+
+        /* =========================================================
+           BOTTOM TAGLINE
+        ========================================================= */
+
+        .bottom-text {
+            position: fixed;
+
+            bottom: 28px;
+            left: 55px;
+
+            font-size: 12px;
+
+            color: #7892ba;
+
+            letter-spacing: 0.3px;
         }
+
+        .bottom-text span {
+            margin: 0 8px;
+            color: #42618f;
+        }
+
+
+        /* =========================================================
+           DECORATIVE GLOW
+        ========================================================= */
+
+        .glow {
+            position: fixed;
+
+            width: 450px;
+            height: 450px;
+
+            border-radius: 50%;
+
+            filter: blur(100px);
+
+            pointer-events: none;
+
+            opacity: 0.10;
+        }
+
+        .glow-one {
+            background: #2563eb;
+
+            left: -200px;
+            top: 30%;
+        }
+
+        .glow-two {
+            background: #8b5cf6;
+
+            right: -200px;
+            bottom: 5%;
+        }
+
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media (max-width: 1200px) {
+
+            .dashboard-layout {
+                grid-template-columns: 330px 460px;
+                justify-content: center;
+            }
+
+            .right-column {
+                display: none;
+            }
+
+            .left-column {
+                align-items: flex-end;
+            }
+
+            .chart-card {
+                max-width: 330px;
+            }
+
+            .brand {
+                left: 30px;
+            }
+
+            .quote {
+                right: 30px;
+            }
+        }
+
+
+        @media (max-width: 900px) {
+
+            .dashboard-layout {
+                display: block;
+                max-width: 500px;
+            }
+
+            .chart-column {
+                display: none;
+            }
+
+            .login-container {
+                padding:
+                    100px 20px 70px;
+            }
+
+            .brand {
+                position: absolute;
+
+                top: 25px;
+                left: 25px;
+            }
+
+            .brand-name {
+                font-size: 22px;
+            }
+
+            .brand-icon {
+                width: 38px;
+            }
+
+            .quote {
+                display: none;
+            }
+
+            .bottom-text {
+                display: none;
+            }
+        }
+
+
+        @media (max-width: 500px) {
+
+            .login-card {
+                padding:
+                    32px 24px;
+
+                border-radius: 20px;
+            }
+
+            .login-header h2 {
+                font-size: 26px;
+            }
+
+            .login-logo-icon {
+                width: 60px;
+                height: 60px;
+            }
+        }
+
     </style>
 </head>
+
+
 <body>
-    <div class="login-container">
-        <div class="glass-card login-card">
-            <div class="login-header">
-                <div class="logo" style="justify-content: center; margin-bottom: 1rem;">
-                    <div class="logo-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-                    </div>
-                </div>
-                <h2 id="formTitle">Welcome Back</h2>
-                <p class="subtitle" id="formSubtitle">Log in to your account</p>
-            </div>
 
-            <div id="errorMessage" class="error-message"></div>
+    <!-- Decorative glow -->
+    <div class="glow glow-one"></div>
+    <div class="glow glow-two"></div>
 
-            <form id="authForm">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" required autocomplete="username">
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" required autocomplete="current-password">
-                </div>
-                <button type="submit" id="submitBtn" class="btn-primary" style="width: 100%;">Log In</button>
-            </form>
 
-            <div class="auth-toggle">
-                <span id="toggleText">Don't have an account? </span>
-                <a href="#" id="toggleBtn">Sign up</a>
-            </div>
+    <!-- =========================================================
+         BRAND
+    ========================================================= -->
+
+    <div class="brand">
+
+        <div class="brand-icon">
+
+            <svg
+                width="48"
+                height="48"
+                viewBox="0 0 48 48"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <rect
+                    x="5"
+                    y="26"
+                    width="8"
+                    height="17"
+                    rx="2"
+                    fill="currentColor"/>
+
+                <rect
+                    x="18"
+                    y="16"
+                    width="8"
+                    height="27"
+                    rx="2"
+                    fill="currentColor"/>
+
+                <rect
+                    x="31"
+                    y="5"
+                    width="8"
+                    height="38"
+                    rx="2"
+                    fill="currentColor"/>
+
+            </svg>
+
         </div>
+
+        <div>
+
+            <div class="brand-name">
+                Insight<span>Forecaster</span>
+            </div>
+
+            <div class="brand-tagline">
+                Data Today. A Smarter Tomorrow.
+            </div>
+
+        </div>
+
     </div>
 
+
+    <!-- =========================================================
+         QUOTE
+    ========================================================= -->
+
+    <div class="quote">
+
+        “Turn Your Data<br>
+        into Smarter Decisions”
+
+        <div class="quote-line"></div>
+
+    </div>
+
+
+    <!-- =========================================================
+         MAIN
+    ========================================================= -->
+
+    <main class="login-container">
+
+        <div class="dashboard-layout">
+
+
+            <!-- =================================================
+                 LEFT CHARTS
+            ================================================= -->
+
+            <div class="chart-column left-column">
+
+
+                <!-- REVENUE TREND -->
+
+                <div class="chart-card">
+
+                    <div class="chart-header">
+
+                        <div class="chart-title">
+                            Revenue Trend
+                        </div>
+
+                        <div class="chart-period">
+                            Last 6 Months
+                        </div>
+
+                    </div>
+
+
+                    <div class="line-chart">
+
+                        <svg
+                            viewBox="0 0 400 175"
+                            preserveAspectRatio="none">
+
+                            <defs>
+
+                                <linearGradient
+                                    id="areaGradient"
+                                    x1="0"
+                                    y1="0"
+                                    x2="0"
+                                    y2="1">
+
+                                    <stop
+                                        offset="0%"
+                                        stop-color="#60a5fa"
+                                        stop-opacity="0.45"/>
+
+                                    <stop
+                                        offset="100%"
+                                        stop-color="#60a5fa"
+                                        stop-opacity="0"/>
+
+                                </linearGradient>
+
+                            </defs>
+
+
+                            <!-- Grid -->
+
+                            <line
+                                x1="45"
+                                y1="20"
+                                x2="390"
+                                y2="20"
+                                class="grid-line"/>
+
+                            <line
+                                x1="45"
+                                y1="55"
+                                x2="390"
+                                y2="55"
+                                class="grid-line"/>
+
+                            <line
+                                x1="45"
+                                y1="90"
+                                x2="390"
+                                y2="90"
+                                class="grid-line"/>
+
+                            <line
+                                x1="45"
+                                y1="125"
+                                x2="390"
+                                y2="125"
+                                class="grid-line"/>
+
+
+                            <!-- Y labels -->
+
+                            <text
+                                x="3"
+                                y="23"
+                                class="axis-label">
+                                200K
+                            </text>
+
+                            <text
+                                x="8"
+                                y="58"
+                                class="axis-label">
+                                150K
+                            </text>
+
+                            <text
+                                x="8"
+                                y="93"
+                                class="axis-label">
+                                100K
+                            </text>
+
+                            <text
+                                x="15"
+                                y="128"
+                                class="axis-label">
+                                50K
+                            </text>
+
+
+                            <!-- Area -->
+
+                            <path
+                                class="line-area"
+                                d="
+                                M45 126
+                                L105 103
+                                L165 80
+                                L225 93
+                                L285 58
+                                L345 70
+                                L390 35
+                                L390 145
+                                L45 145
+                                Z"/>
+
+
+                            <!-- Line -->
+
+                            <path
+                                class="revenue-line"
+                                d="
+                                M45 126
+                                L105 103
+                                L165 80
+                                L225 93
+                                L285 58
+                                L345 70
+                                L390 35"/>
+
+
+                            <!-- Points -->
+
+                            <circle
+                                class="data-point"
+                                cx="45"
+                                cy="126"
+                                r="4"/>
+
+                            <circle
+                                class="data-point"
+                                cx="105"
+                                cy="103"
+                                r="4"/>
+
+                            <circle
+                                class="data-point"
+                                cx="165"
+                                cy="80"
+                                r="4"/>
+
+                            <circle
+                                class="data-point"
+                                cx="225"
+                                cy="93"
+                                r="4"/>
+
+                            <circle
+                                class="data-point"
+                                cx="285"
+                                cy="58"
+                                r="4"/>
+
+                            <circle
+                                class="data-point"
+                                cx="345"
+                                cy="70"
+                                r="4"/>
+
+                            <circle
+                                class="data-point"
+                                cx="390"
+                                cy="35"
+                                r="5"/>
+
+
+                            <!-- Final value -->
+
+                            <text
+                                x="352"
+                                y="25"
+                                class="revenue-value">
+                                ₹186K
+                            </text>
+
+
+                            <!-- X labels -->
+
+                            <text
+                                x="42"
+                                y="165"
+                                class="axis-label">
+                                Jan
+                            </text>
+
+                            <text
+                                x="102"
+                                y="165"
+                                class="axis-label">
+                                Feb
+                            </text>
+
+                            <text
+                                x="162"
+                                y="165"
+                                class="axis-label">
+                                Mar
+                            </text>
+
+                            <text
+                                x="222"
+                                y="165"
+                                class="axis-label">
+                                Apr
+                            </text>
+
+                            <text
+                                x="282"
+                                y="165"
+                                class="axis-label">
+                                May
+                            </text>
+
+                            <text
+                                x="382"
+                                y="165"
+                                class="axis-label">
+                                Jun
+                            </text>
+
+                        </svg>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SALES BY CATEGORY -->
+
+                <div class="chart-card">
+
+                    <div class="chart-header">
+
+                        <div class="chart-title">
+                            Sales by Category
+                        </div>
+
+                    </div>
+
+
+                    <div class="bar-chart">
+
+
+                        <div class="bar-item">
+
+                            <div class="bar-value">
+                                85K
+                            </div>
+
+                            <div
+                                class="bar"
+                                style="height: 82%;">
+                            </div>
+
+                            <div class="bar-label">
+                                Electronics
+                            </div>
+
+                        </div>
+
+
+                        <div class="bar-item">
+
+                            <div class="bar-value">
+                                62K
+                            </div>
+
+                            <div
+                                class="bar"
+                                style="height: 60%;">
+                            </div>
+
+                            <div class="bar-label">
+                                Fashion
+                            </div>
+
+                        </div>
+
+
+                        <div class="bar-item">
+
+                            <div class="bar-value">
+                                40K
+                            </div>
+
+                            <div
+                                class="bar"
+                                style="height: 40%;">
+                            </div>
+
+                            <div class="bar-label">
+                                Home
+                            </div>
+
+                        </div>
+
+
+                        <div class="bar-item">
+
+                            <div class="bar-value">
+                                28K
+                            </div>
+
+                            <div
+                                class="bar"
+                                style="height: 28%;">
+                            </div>
+
+                            <div class="bar-label">
+                                Beauty
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 LOGIN CARD
+            ================================================= -->
+
+            <div class="login-card">
+
+
+                <div class="login-logo">
+
+                    <div class="login-logo-icon">
+
+                        <svg
+                            width="72"
+                            height="72"
+                            viewBox="0 0 72 72"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+
+                            <rect
+                                x="10"
+                                y="39"
+                                width="12"
+                                height="23"
+                                rx="3"
+                                fill="currentColor"/>
+
+                            <rect
+                                x="30"
+                                y="25"
+                                width="12"
+                                height="37"
+                                rx="3"
+                                fill="currentColor"/>
+
+                            <rect
+                                x="50"
+                                y="9"
+                                width="12"
+                                height="53"
+                                rx="3"
+                                fill="currentColor"/>
+
+                        </svg>
+
+                    </div>
+
+                </div>
+
+
+                <div class="login-header">
+
+                    <h1>
+                        Insight<span style="color:#2563eb;">Forecaster</span>
+                    </h1>
+
+                    <div class="mini-tagline">
+                        Forecast Smarter. Grow Faster.
+                    </div>
+
+                    <h2 id="formTitle">
+                        Welcome Back
+                    </h2>
+
+                    <p
+                        class="subtitle"
+                        id="formSubtitle">
+                        Log in to your account
+                    </p>
+
+                </div>
+
+
+                <div
+                    id="errorMessage"
+                    class="error-message">
+                </div>
+
+
+                <form id="authForm">
+
+
+                    <!-- USERNAME -->
+
+                    <div class="form-group">
+
+                        <label for="username">
+                            Username
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <svg
+                                class="input-icon"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2">
+
+                                <path
+                                    d="M20 21a8 8 0 0 0-16 0"/>
+
+                                <circle
+                                    cx="12"
+                                    cy="7"
+                                    r="4"/>
+
+                            </svg>
+
+                            <input
+                                type="text"
+                                id="username"
+                                placeholder="Enter your username"
+                                required
+                                autocomplete="username">
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PASSWORD -->
+
+                    <div class="form-group">
+
+                        <label for="password">
+                            Password
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <svg
+                                class="input-icon"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2">
+
+                                <rect
+                                    x="3"
+                                    y="11"
+                                    width="18"
+                                    height="10"
+                                    rx="2"/>
+
+                                <path
+                                    d="M7 11V7a5 5 0 0 1 10 0v4"/>
+
+                            </svg>
+
+
+                            <input
+                                type="password"
+                                id="password"
+                                placeholder="Enter your password"
+                                required
+                                autocomplete="current-password">
+
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                id="passwordToggle"
+                                aria-label="Show password">
+
+                                <svg
+                                    id="eyeIcon"
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2">
+
+                                    <path
+                                        d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/>
+
+                                    <circle
+                                        cx="12"
+                                        cy="12"
+                                        r="3"/>
+
+                                </svg>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- SUBMIT -->
+
+                    <button
+                        type="submit"
+                        id="submitBtn"
+                        class="btn-primary">
+
+                        Log In
+
+                    </button>
+
+                </form>
+
+
+                <!-- LOGIN / SIGNUP -->
+
+                <div class="auth-toggle">
+
+                    <span id="toggleText">
+                        Don't have an account?
+                    </span>
+
+                    <a
+                        href="#"
+                        id="toggleBtn">
+                        Sign up
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 RIGHT CHARTS
+            ================================================= -->
+
+            <div class="chart-column right-column">
+
+
+                <!-- FORECAST VS ACTUAL -->
+
+                <div class="chart-card">
+
+                    <div class="chart-header">
+
+                        <div class="chart-title">
+                            Forecast vs Actual
+                        </div>
+
+                        <div class="chart-legend">
+
+                            <div class="legend-item">
+                                <span class="legend-dot actual-dot"></span>
+                                Actual
+                            </div>
+
+                            <div class="legend-item">
+                                <span class="legend-dot forecast-dot"></span>
+                                Forecast
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="line-chart">
+
+                        <svg
+                            viewBox="0 0 400 175"
+                            preserveAspectRatio="none">
+
+                            <!-- Grid -->
+
+                            <line
+                                x1="45"
+                                y1="20"
+                                x2="390"
+                                y2="20"
+                                class="grid-line"/>
+
+                            <line
+                                x1="45"
+                                y1="55"
+                                x2="390"
+                                y2="55"
+                                class="grid-line"/>
+
+                            <line
+                                x1="45"
+                                y1="90"
+                                x2="390"
+                                y2="90"
+                                class="grid-line"/>
+
+                            <line
+                                x1="45"
+                                y1="125"
+                                x2="390"
+                                y2="125"
+                                class="grid-line"/>
+
+
+                            <text
+                                x="3"
+                                y="23"
+                                class="axis-label">
+                                200K
+                            </text>
+
+                            <text
+                                x="8"
+                                y="58"
+                                class="axis-label">
+                                150K
+                            </text>
+
+                            <text
+                                x="8"
+                                y="93"
+                                class="axis-label">
+                                100K
+                            </text>
+
+                            <text
+                                x="15"
+                                y="128"
+                                class="axis-label">
+                                50K
+                            </text>
+
+
+                            <!-- Forecast -->
+
+                            <path
+                                d="
+                                M45 120
+                                L105 108
+                                L165 102
+                                L225 72
+                                L285 55
+                                L345 40
+                                L390 25"
+                                fill="none"
+                                stroke="#a78bfa"
+                                stroke-width="3"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-dasharray="600"
+                                stroke-dashoffset="600"
+                                style="
+                                animation:
+                                drawForecast 2.5s ease forwards;
+                                filter:
+                                drop-shadow(
+                                0 0 6px rgba(167,139,250,.55)
+                                );
+                                "/>
+
+
+                            <!-- Actual -->
+
+                            <path
+                                d="
+                                M45 135
+                                L105 125
+                                L165 128
+                                L225 105
+                                L285 82
+                                L345 85
+                                L390 68"
+                                fill="none"
+                                stroke="#22d3ee"
+                                stroke-width="3"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-dasharray="600"
+                                stroke-dashoffset="600"
+                                style="
+                                animation:
+                                drawForecast 2.5s ease forwards;
+                                filter:
+                                drop-shadow(
+                                0 0 6px rgba(34,211,238,.55)
+                                );
+                                "/>
+
+
+                            <!-- Points -->
+
+                            <circle
+                                cx="45"
+                                cy="135"
+                                r="4"
+                                fill="#fff"
+                                stroke="#22d3ee"
+                                stroke-width="2"/>
+
+                            <circle
+                                cx="105"
+                                cy="125"
+                                r="4"
+                                fill="#fff"
+                                stroke="#22d3ee"
+                                stroke-width="2"/>
+
+                            <circle
+                                cx="165"
+                                cy="128"
+                                r="4"
+                                fill="#fff"
+                                stroke="#22d3ee"
+                                stroke-width="2"/>
+
+                            <circle
+                                cx="225"
+                                cy="105"
+                                r="4"
+                                fill="#fff"
+                                stroke="#22d3ee"
+                                stroke-width="2"/>
+
+                            <circle
+                                cx="285"
+                                cy="82"
+                                r="4"
+                                fill="#fff"
+                                stroke="#22d3ee"
+                                stroke-width="2"/>
+
+                            <circle
+                                cx="345"
+                                cy="85"
+                                r="4"
+                                fill="#fff"
+                                stroke="#22d3ee"
+                                stroke-width="2"/>
+
+                            <circle
+                                cx="390"
+                                cy="68"
+                                r="4"
+                                fill="#fff"
+                                stroke="#22d3ee"
+                                stroke-width="2"/>
+
+
+                            <!-- X labels -->
+
+                            <text
+                                x="42"
+                                y="165"
+                                class="axis-label">
+                                Jan
+                            </text>
+
+                            <text
+                                x="102"
+                                y="165"
+                                class="axis-label">
+                                Feb
+                            </text>
+
+                            <text
+                                x="162"
+                                y="165"
+                                class="axis-label">
+                                Mar
+                            </text>
+
+                            <text
+                                x="222"
+                                y="165"
+                                class="axis-label">
+                                Apr
+                            </text>
+
+                            <text
+                                x="282"
+                                y="165"
+                                class="axis-label">
+                                May
+                            </text>
+
+                            <text
+                                x="382"
+                                y="165"
+                                class="axis-label">
+                                Jun
+                            </text>
+
+                        </svg>
+
+                    </div>
+
+                </div>
+
+
+                <!-- REVENUE DISTRIBUTION -->
+
+                <div class="chart-card">
+
+                    <div class="chart-header">
+
+                        <div class="chart-title">
+                            Revenue Distribution
+                        </div>
+
+                    </div>
+
+
+                    <div class="distribution">
+
+
+                        <div class="donut">
+
+                            <div class="donut-center">
+
+                                <small>Total</small>
+
+                                <strong>
+                                    ₹315K
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="distribution-list">
+
+
+                            <div class="distribution-item">
+
+                                <div class="distribution-name">
+
+                                    <span
+                                        class="distribution-dot d-blue">
+                                    </span>
+
+                                    Electronics
+
+                                </div>
+
+                                <strong>
+                                    35%
+                                </strong>
+
+                            </div>
+
+
+                            <div class="distribution-item">
+
+                                <div class="distribution-name">
+
+                                    <span
+                                        class="distribution-dot d-purple">
+                                    </span>
+
+                                    Fashion
+
+                                </div>
+
+                                <strong>
+                                    25%
+                                </strong>
+
+                            </div>
+
+
+                            <div class="distribution-item">
+
+                                <div class="distribution-name">
+
+                                    <span
+                                        class="distribution-dot d-green">
+                                    </span>
+
+                                    Home
+
+                                </div>
+
+                                <strong>
+                                    20%
+                                </strong>
+
+                            </div>
+
+
+                            <div class="distribution-item">
+
+                                <div class="distribution-name">
+
+                                    <span
+                                        class="distribution-dot d-orange">
+                                    </span>
+
+                                    Beauty
+
+                                </div>
+
+                                <strong>
+                                    12%
+                                </strong>
+
+                            </div>
+
+
+                            <div class="distribution-item">
+
+                                <div class="distribution-name">
+
+                                    <span
+                                        class="distribution-dot d-gray">
+                                    </span>
+
+                                    Others
+
+                                </div>
+
+                                <strong>
+                                    8%
+                                </strong>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- =========================================================
+         BOTTOM
+    ========================================================= -->
+
+    <div class="bottom-text">
+
+        Analytics
+
+        <span>|</span>
+
+        Forecasting
+
+        <span>|</span>
+
+        Better Decisions
+
+    </div>
+
+
+    <!-- =========================================================
+         JAVASCRIPT
+    ========================================================= -->
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+
+        document.addEventListener("DOMContentLoaded", () => {
+
+
+            /* =====================================================
+               ELEMENTS
+            ===================================================== */
+
             let isLogin = true;
-            
-            const formTitle = document.getElementById('formTitle');
-            const formSubtitle = document.getElementById('formSubtitle');
-            const submitBtn = document.getElementById('submitBtn');
-            const toggleText = document.getElementById('toggleText');
-            const toggleBtn = document.getElementById('toggleBtn');
-            const authForm = document.getElementById('authForm');
-            const errorMessage = document.getElementById('errorMessage');
 
-            toggleBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                isLogin = !isLogin;
-                
-                if (isLogin) {
-                    formTitle.textContent = "Welcome Back";
-                    formSubtitle.textContent = "Log in to your account";
-                    submitBtn.textContent = "Log In";
-                    toggleText.textContent = "Don't have an account? ";
-                    toggleBtn.textContent = "Sign up";
-                } else {
-                    formTitle.textContent = "Create Account";
-                    formSubtitle.textContent = "Register for InsightForecaster";
-                    submitBtn.textContent = "Sign Up";
-                    toggleText.textContent = "Already have an account? ";
-                    toggleBtn.textContent = "Log in";
-                }
-                errorMessage.style.display = 'none';
-            });
+            const formTitle =
+                document.getElementById("formTitle");
 
-            authForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
-                
-                submitBtn.disabled = true;
-                errorMessage.style.display = 'none';
+            const formSubtitle =
+                document.getElementById("formSubtitle");
 
-                const endpoint = isLogin ? "/api/login" : "/api/register";
+            const submitBtn =
+                document.getElementById("submitBtn");
 
-                try {
-                    const response = await fetch(endpoint, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ username, password })
-                    });
+            const toggleText =
+                document.getElementById("toggleText");
 
-                    const data = await response.json();
+            const toggleBtn =
+                document.getElementById("toggleBtn");
 
-                    if (!response.ok) {
-                        throw new Error(data.detail || "Authentication failed");
+            const authForm =
+                document.getElementById("authForm");
+
+            const errorMessage =
+                document.getElementById("errorMessage");
+
+            const password =
+                document.getElementById("password");
+
+            const passwordToggle =
+                document.getElementById("passwordToggle");
+
+
+            /* =====================================================
+               PASSWORD SHOW / HIDE
+            ===================================================== */
+
+            passwordToggle.addEventListener(
+                "click",
+                () => {
+
+                    if (
+                        password.type === "password"
+                    ) {
+
+                        password.type = "text";
+
+                        passwordToggle.innerHTML = `
+                            <svg
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2">
+
+                                <path
+                                    d="M3 3l18 18"/>
+
+                                <path
+                                    d="M10.5 10.5
+                                       a2 2 0 0 0
+                                       3 3"/>
+
+                                <path
+                                    d="M9.9 4.2
+                                       A10.9 10.9 0 0 1
+                                       12 4
+                                       c6.5 0 10 8 10 8
+                                       a18.5 18.5 0 0 1
+                                       -3.2 4.4"/>
+
+                                <path
+                                    d="M6.6 6.6
+                                       C3.6 8.5 2 12
+                                       2 12
+                                       s3.5 8 10 8
+                                       c1.5 0 2.8-.3 4-.9"/>
+
+                            </svg>
+                        `;
+
+                    } else {
+
+                        password.type = "password";
+
+                        passwordToggle.innerHTML = `
+                            <svg
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2">
+
+                                <path
+                                    d="M2 12
+                                       s3.5-6 10-6
+                                       10 6 10 6
+                                       -3.5 6-10 6
+                                       S2 12 2 12z"/>
+
+                                <circle
+                                    cx="12"
+                                    cy="12"
+                                    r="3"/>
+
+                            </svg>
+                        `;
                     }
+
+                }
+            );
+
+
+            /* =====================================================
+               LOGIN / SIGNUP TOGGLE
+            ===================================================== */
+
+            toggleBtn.addEventListener(
+                "click",
+                (e) => {
+
+                    e.preventDefault();
+
+                    isLogin = !isLogin;
+
 
                     if (isLogin) {
-                        // Redirect to dashboard
-                        window.location.href = "/";
+
+                        formTitle.textContent =
+                            "Welcome Back";
+
+                        formSubtitle.textContent =
+                            "Log in to your account";
+
+                        submitBtn.textContent =
+                            "Log In";
+
+                        toggleText.textContent =
+                            "Don't have an account?";
+
+                        toggleBtn.textContent =
+                            "Sign up";
+
+                        password.setAttribute(
+                            "autocomplete",
+                            "current-password"
+                        );
+
                     } else {
-                        // Registration success, auto login or ask to login
-                        alert("Registration successful! You can now log in.");
-                        toggleBtn.click(); // Switch to login view
+
+                        formTitle.textContent =
+                            "Create Account";
+
+                        formSubtitle.textContent =
+                            "Register for InsightForecaster";
+
+                        submitBtn.textContent =
+                            "Sign Up";
+
+                        toggleText.textContent =
+                            "Already have an account?";
+
+                        toggleBtn.textContent =
+                            "Log in";
+
+                        password.setAttribute(
+                            "autocomplete",
+                            "new-password"
+                        );
                     }
-                } catch (error) {
-                    errorMessage.textContent = error.message;
-                    errorMessage.style.display = 'block';
-                } finally {
-                    submitBtn.disabled = false;
+
+
+                    errorMessage.style.display =
+                        "none";
+
+                    errorMessage.textContent = "";
+
                 }
-            });
+            );
+
+
+            /* =====================================================
+               FORM SUBMIT
+            ===================================================== */
+
+            authForm.addEventListener(
+                "submit",
+                async (e) => {
+
+                    e.preventDefault();
+
+
+                    const username =
+                        document
+                            .getElementById("username")
+                            .value
+                            .trim();
+
+                    const passwordValue =
+                        document
+                            .getElementById("password")
+                            .value;
+
+
+                    if (!username || !passwordValue) {
+
+                        errorMessage.textContent =
+                            "Please enter username and password.";
+
+                        errorMessage.style.display =
+                            "block";
+
+                        return;
+                    }
+
+
+                    submitBtn.disabled = true;
+
+                    errorMessage.style.display =
+                        "none";
+
+
+                    const endpoint =
+                        isLogin
+                            ? "/api/login"
+                            : "/api/register";
+
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                endpoint,
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body:
+                                        JSON.stringify({
+                                            username:
+                                                username,
+                                            password:
+                                                passwordValue
+                                        })
+                                }
+                            );
+
+
+                        let data = {};
+
+                        try {
+
+                            data =
+                                await response.json();
+
+                        } catch {
+
+                            data = {};
+
+                        }
+
+
+                        if (!response.ok) {
+
+                            throw new Error(
+                                data.detail ||
+                                data.message ||
+                                "Authentication failed"
+                            );
+                        }
+
+
+                        /* ================================
+                           LOGIN SUCCESS
+                        ================================= */
+
+                        if (isLogin) {
+
+                            window.location.href = "/";
+
+                        }
+
+
+                        /* ================================
+                           REGISTRATION SUCCESS
+                        ================================= */
+
+                        else {
+
+                            alert(
+                                "Registration successful! You can now log in."
+                            );
+
+                            toggleBtn.click();
+
+                        }
+
+                    }
+
+
+                    catch (error) {
+
+                        errorMessage.textContent =
+                            error.message ||
+                            "Something went wrong.";
+
+                        errorMessage.style.display =
+                            "block";
+
+                    }
+
+
+                    finally {
+
+                        submitBtn.disabled = false;
+
+                    }
+
+                }
+            );
+
         });
+
+
+        /* =========================================================
+           FORECAST LINE ANIMATION
+        ========================================================= */
+
+        const style =
+            document.createElement("style");
+
+        style.innerHTML = `
+
+            @keyframes drawForecast {
+
+                to {
+                    stroke-dashoffset: 0;
+                }
+
+            }
+
+        `;
+
+        document.head.appendChild(style);
+
     </script>
+
 </body>
 </html>
