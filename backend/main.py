@@ -1,15 +1,17 @@
 import os
+import hashlib
+import secrets
 from typing import List, Optional
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 
-import models
-from database import engine, get_db
+from . import models
+from .database import engine, get_db
 
 from google import genai
 from google.genai import types
@@ -34,9 +36,18 @@ app.add_middleware(
 frontend_path = pathlib.Path(__file__).parent.parent / 'frontend'
 app.mount("/static", StaticFiles(directory=str(frontend_path)), name="static")
 
+SESSIONS = {}
+
 @app.get("/")
-def read_index():
+def read_index(request: Request):
+    token = request.cookies.get("session_token")
+    if not token or token not in SESSIONS:
+        return RedirectResponse(url="/login.html")
     return FileResponse(str(frontend_path / "index.html"))
+
+@app.get("/login.html")
+def read_login_page():
+    return FileResponse(str(frontend_path / "login.html"))
 
 @app.get("/style.css")
 def read_css():
@@ -134,13 +145,54 @@ Provide actionable insights or strategic recommendations for future growth. The 
             model='gemini-1.5-flash',
             contents=prompt,
         )
-        return response.text
+        return response.text or "Unable to generate analysis."
     except Exception as e:
         print(f"Error calling GenAI: {e}")
         return f"Unable to generate AI analysis at this time. Error: {str(e)}"
 
+def hash_password(password: str) -> str:
+    return hashlib.sha256(password.encode()).hexdigest()
+
+class AuthRequest(BaseModel):
+    username: str
+    password: str
+
+@app.post("/api/register")
+def register(req: AuthRequest, db: Session = Depends(get_db)):
+    existing = db.query(models.User).filter(models.User.username == req.username).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Username already exists")
+    
+    new_user = models.User(username=req.username, hashed_password=hash_password(req.password))
+    db.add(new_user)
+    db.commit()
+    return {"message": "User created successfully"}
+
+@app.post("/api/login")
+def login(req: AuthRequest, response: Response, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.username == req.username).first()
+    if user is None or str(getattr(user, "hashed_password", "")) != hash_password(req.password):
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    
+    token = secrets.token_hex(32)
+    SESSIONS[token] = user.username
+    response.set_cookie(key="session_token", value=token, httponly=True)
+    return {"message": "Logged in successfully"}
+
+@app.post("/api/logout")
+def logout(request: Request, response: Response):
+    token = request.cookies.get("session_token")
+    if token in SESSIONS:
+        del SESSIONS[token]
+    response.delete_cookie("session_token")
+    return {"message": "Logged out successfully"}
+
 @app.post("/api/predict", response_model=PredictResponse)
-def predict_sales(req: PredictRequest, db: Session = Depends(get_db)):
+def predict_sales(req: PredictRequest, request: Request, db: Session = Depends(get_db)):
+    token = request.cookies.get("session_token")
+    if not token or token not in SESSIONS:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
     if not req.records:
         raise HTTPException(status_code=400, detail="No records provided")
     
