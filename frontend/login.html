@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - InsightForecaster</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            padding: 2.5rem;
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.5);
+            font-family: inherit;
+        }
+        .auth-toggle {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.875rem;
+        }
+        .auth-toggle a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .auth-toggle a:hover {
+            text-decoration: underline;
+        }
+        .error-message {
+            color: var(--danger-color);
+            font-size: 0.875rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="glass-card login-card">
+            <div class="login-header">
+                <div class="logo" style="justify-content: center; margin-bottom: 1rem;">
+                    <div class="logo-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+                    </div>
+                </div>
+                <h2 id="formTitle">Welcome Back</h2>
+                <p class="subtitle" id="formSubtitle">Log in to your account</p>
+            </div>
+
+            <div id="errorMessage" class="error-message"></div>
+
+            <form id="authForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" id="submitBtn" class="btn-primary" style="width: 100%;">Log In</button>
+            </form>
+
+            <div class="auth-toggle">
+                <span id="toggleText">Don't have an account? </span>
+                <a href="#" id="toggleBtn">Sign up</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let isLogin = true;
+            
+            const formTitle = document.getElementById('formTitle');
+            const formSubtitle = document.getElementById('formSubtitle');
+            const submitBtn = document.getElementById('submitBtn');
+            const toggleText = document.getElementById('toggleText');
+            const toggleBtn = document.getElementById('toggleBtn');
+            const authForm = document.getElementById('authForm');
+            const errorMessage = document.getElementById('errorMessage');
+
+            toggleBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                isLogin = !isLogin;
+                
+                if (isLogin) {
+                    formTitle.textContent = "Welcome Back";
+                    formSubtitle.textContent = "Log in to your account";
+                    submitBtn.textContent = "Log In";
+                    toggleText.textContent = "Don't have an account? ";
+                    toggleBtn.textContent = "Sign up";
+                } else {
+                    formTitle.textContent = "Create Account";
+                    formSubtitle.textContent = "Register for InsightForecaster";
+                    submitBtn.textContent = "Sign Up";
+                    toggleText.textContent = "Already have an account? ";
+                    toggleBtn.textContent = "Log in";
+                }
+                errorMessage.style.display = 'none';
+            });
+
+            authForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                submitBtn.disabled = true;
+                errorMessage.style.display = 'none';
+
+                const endpoint = isLogin ? "/api/login" : "/api/register";
+
+                try {
+                    const response = await fetch(endpoint, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.detail || "Authentication failed");
+                    }
+
+                    if (isLogin) {
+                        // Redirect to dashboard
+                        window.location.href = "/";
+                    } else {
+                        // Registration success, auto login or ask to login
+                        alert("Registration successful! You can now log in.");
+                        toggleBtn.click(); // Switch to login view
+                    }
+                } catch (error) {
+                    errorMessage.textContent = error.message;
+                    errorMessage.style.display = 'block';
+                } finally {
+                    submitBtn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

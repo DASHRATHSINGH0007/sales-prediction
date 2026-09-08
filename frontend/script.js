@@ -77,6 +77,56 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTable();
     });
 
+    // File Upload Logic
+    const uploadBtn = document.getElementById('uploadBtn');
+    const fileUpload = document.getElementById('fileUpload');
+
+    if (uploadBtn && fileUpload) {
+        uploadBtn.addEventListener('click', () => fileUpload.click());
+
+        fileUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                try {
+                    const data = evt.target.result;
+                    const workbook = XLSX.read(data, { type: 'binary' });
+                    
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    const json = XLSX.utils.sheet_to_json(worksheet);
+                    
+                    if (json.length > 0) {
+                        records = json.map(row => {
+                            // Try to intelligently map columns even if names slightly differ
+                            const getVal = (possibleKeys, def) => {
+                                const key = Object.keys(row).find(k => possibleKeys.some(p => k.toLowerCase().includes(p)));
+                                return key ? row[key] : def;
+                            };
+
+                            return {
+                                month: getVal(['month', 'date', 'period'], 'Unknown'),
+                                unitsSold: parseFloat(getVal(['unit', 'sold', 'qty', 'quantity'], 0)) || 0,
+                                costPricePerUnit: parseFloat(getVal(['cost', 'cogs', 'buying'], 0)) || 0,
+                                sellingPricePerUnit: parseFloat(getVal(['sell', 'price', 'revenue'], 0)) || 0
+                            };
+                        });
+                        renderTable();
+                    }
+                } catch (err) {
+                    console.error("Error parsing file:", err);
+                    alert("Could not parse file. Please ensure it's a valid CSV or Excel file with Month, Units Sold, Cost Price, and Selling Price columns.");
+                }
+                // Reset file input
+                fileUpload.value = '';
+            };
+            reader.readAsBinaryString(file);
+        });
+    }
+
     const formatCurrency = (val) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(val);
 
     salesForm.addEventListener('submit', async (e) => {
@@ -170,22 +220,14 @@ document.addEventListener('DOMContentLoaded', () => {
             pointColors.push(result.isLoss ? '#ef4444' : '#22c55e');
 
             salesChartInstance = new Chart(ctx, {
-                type: 'line',
+                type: 'bar',
                 data: {
                     labels: allLabels,
                     datasets: [{
                         label: 'Units Sold',
                         data: allData,
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 2,
-                        pointBackgroundColor: pointColors,
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
-                        fill: true,
-                        segment: {
-                            borderDash: ctx => ctx.p0DataIndex === allData.length - 2 ? [5, 5] : undefined
-                        }
+                        backgroundColor: pointColors,
+                        borderRadius: 4,
                     }]
                 },
                 options: {
@@ -211,6 +253,20 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.textContent = "Generate Prediction";
         }
     });
+
+    // Logout Handler
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                window.location.href = '/login.html';
+            } catch (error) {
+                console.error("Logout failed:", error);
+            }
+        });
+    }
 
     // Initial render
     renderTable();
