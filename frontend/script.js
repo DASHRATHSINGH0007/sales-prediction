@@ -102,16 +102,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (json.length > 0) {
                         records = json.map(row => {
                             // Try to intelligently map columns even if names slightly differ
-                            const getVal = (possibleKeys, def) => {
-                                const key = Object.keys(row).find(k => possibleKeys.some(p => k.toLowerCase().includes(p)));
+                            const getVal = (possibleKeys, excludeKeys, def) => {
+                                const key = Object.keys(row).find(k => 
+                                    possibleKeys.some(p => k.toLowerCase().includes(p)) && 
+                                    (!excludeKeys || !excludeKeys.some(e => k.toLowerCase().includes(e)))
+                                );
                                 return key ? row[key] : def;
                             };
 
                             return {
-                                month: getVal(['month', 'date', 'period'], 'Unknown'),
-                                unitsSold: parseFloat(getVal(['unit', 'sold', 'qty', 'quantity'], 0)) || 0,
-                                costPricePerUnit: parseFloat(getVal(['cost', 'cogs', 'buying'], 0)) || 0,
-                                sellingPricePerUnit: parseFloat(getVal(['sell', 'price', 'revenue'], 0)) || 0
+                                month: getVal(['month', 'date', 'period'], [], 'Unknown'),
+                                unitsSold: parseFloat(getVal(['unit', 'sold', 'qty', 'quantity'], [], 0)) || 0,
+                                costPricePerUnit: parseFloat(getVal(['cost', 'cogs', 'buying'], ['sell', 'revenue'], 0)) || 0,
+                                sellingPricePerUnit: parseFloat(getVal(['sell', 'price', 'revenue'], ['cost', 'cogs', 'buying'], 0)) || 0
                             };
                         });
                         renderTable();
