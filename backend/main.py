@@ -122,7 +122,7 @@ def generate_ai_analysis(data: List[SalesRecordInput], total_revenue: float, tot
         status_text = "loss" if is_loss else "profit"
         
         prompt = f"""You are an expert financial analyst providing insights into business performance.
-Analyze the provided sales data and financial metrics to provide a strategic analysis of the predicted {status_text}.
+Analyze the provided sales data and financial metrics to provide a concise and highly effective strategic analysis of the predicted {status_text}.
 
 Sales Data:
 {sales_data_str}
@@ -132,17 +132,17 @@ Total Revenue: {total_revenue}
 Total Cost: {total_cost}
 Profit or Loss: {profit_or_loss} (This indicates a {status_text}.)
 
-Based on the provided information, the business is projected to make a {status_text}.
-Please provide a detailed analysis explaining the possible reasons for this {status_text}. Focus on identifying factors such as:
-1.  **Selling Price**: Evaluate if the selling price per unit is optimal compared to the cost price per unit.
-2.  **Cost Price**: Assess if the cost price per unit is well-managed or excessively high.
-3.  **Sales Trend**: Examine the 'Units Sold' across different months to identify any noticeable trends (growth or decline).
-4.  **Overall Profit Margin**: Comment on the overall profit margin implied by the revenue and cost figures.
+Based on this data, the business is projected to make a {status_text}. 
+Please provide a very short, punchy summary of WHY this is happening and WHAT the business should do next.
 
-Provide actionable insights or strategic recommendations for future growth. The analysis should be comprehensive, easy to understand for a business owner, and structured clearly."""
+Format your response strictly as follows:
+- **The Core Driver**: One sentence summarizing the main reason for the {status_text} (e.g. pricing, volume, or costs).
+- **Key Action**: One sentence of actionable, strategic advice.
+
+Do not write a long essay. Keep it under 60 words total, sharp, and directly to the point."""
 
         response = client.models.generate_content(
-            model='gemini-1.5-flash',
+            model='gemini-3.6-flash',
             contents=prompt,
         )
         return response.text or "Unable to generate analysis."
@@ -249,3 +249,21 @@ def predict_sales(req: PredictRequest, request: Request, db: Session = Depends(g
         historicalData=historical_data,
         predictedLabel=predicted_label
     )
+
+@app.get("/api/history")
+def get_history(request: Request, db: Session = Depends(get_db)):
+    token = request.cookies.get("session_token")
+    if not token or token not in SESSIONS:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    predictions = db.query(models.Prediction).order_by(models.Prediction.id.desc()).all()
+    history = []
+    for p in predictions:
+        history.append({
+            "id": p.id,
+            "predicted_units": p.predicted_units,
+            "total_revenue": p.total_revenue,
+            "profit_or_loss": p.profit_or_loss,
+            "is_loss": p.is_loss
+        })
+    return {"history": history}
