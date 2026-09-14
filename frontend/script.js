@@ -243,7 +243,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             aiLoader.classList.add('hidden');
-            aiText.textContent = result.aiAnalysis || "Analysis not available.";
+            if (result.aiAnalysis) {
+                aiText.innerHTML = marked.parse(result.aiAnalysis);
+            } else {
+                aiText.textContent = "Analysis not available.";
+            }
             
         } catch (error) {
             console.error("Prediction API failed:", error);
@@ -266,6 +270,200 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Logout failed:", error);
             }
         });
+    }
+
+    // Navigation Handler
+    const navDashboard = document.getElementById('navDashboard');
+    const navReports = document.getElementById('navReports');
+    const navHistory = document.getElementById('navHistory');
+    const dashboardSection = document.getElementById('dashboardSection');
+    const reportsSection = document.getElementById('reportsSection');
+    const historySection = document.getElementById('historySection');
+    const featuresSection = document.getElementById('featuresSection');
+
+    function switchTab(tab) {
+        if(navDashboard) navDashboard.classList.remove('active');
+        if(navReports) navReports.classList.remove('active');
+        if(navHistory) navHistory.classList.remove('active');
+        
+        if(dashboardSection) dashboardSection.classList.add('hidden');
+        if(reportsSection) reportsSection.classList.add('hidden');
+        if(historySection) historySection.classList.add('hidden');
+        if(featuresSection) featuresSection.classList.add('hidden');
+
+        if (tab === 'reports') {
+            if(navReports) navReports.classList.add('active');
+            if(reportsSection) reportsSection.classList.remove('hidden');
+            generateDetailedReport();
+        } else if (tab === 'history') {
+            if(navHistory) navHistory.classList.add('active');
+            if(historySection) historySection.classList.remove('hidden');
+            fetchAndRenderHistory();
+        } else {
+            if(navDashboard) navDashboard.classList.add('active');
+            if(dashboardSection) dashboardSection.classList.remove('hidden');
+            if(featuresSection) featuresSection.classList.remove('hidden');
+        }
+    }
+
+    if (navReports) {
+        navReports.addEventListener('click', (e) => { e.preventDefault(); switchTab('reports'); });
+        navDashboard.addEventListener('click', (e) => { e.preventDefault(); switchTab('dashboard'); });
+        if (navHistory) navHistory.addEventListener('click', (e) => { e.preventDefault(); switchTab('history'); });
+    }
+
+    async function fetchAndRenderHistory() {
+        const historyContainer = document.getElementById('historyTableContainer');
+        historyContainer.innerHTML = '<div class="skeleton-loader"><div class="skeleton-line" style="height:40px;width:100%"></div></div>';
+        
+        try {
+            const res = await fetch('/api/history');
+            if (!res.ok) throw new Error("Failed to fetch history");
+            const data = await res.json();
+            
+            if (data.history.length === 0) {
+                historyContainer.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-muted);">No history available yet.</p>';
+                return;
+            }
+
+            let tableHTML = `<table style="width: 100%; text-align: left; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="padding: 10px; border-bottom: 2px solid hsl(var(--border));">ID</th>
+                        <th style="padding: 10px; border-bottom: 2px solid hsl(var(--border));">Predicted Units</th>
+                        <th style="padding: 10px; border-bottom: 2px solid hsl(var(--border));">Revenue</th>
+                        <th style="padding: 10px; border-bottom: 2px solid hsl(var(--border));">Outcome</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+                
+            data.history.forEach(item => {
+                const color = item.is_loss ? "hsl(var(--danger))" : "hsl(var(--success))";
+                const label = item.is_loss ? "Loss" : "Profit";
+                
+                tableHTML += `
+                    <tr>
+                        <td style="padding: 12px 10px; border-bottom: 1px solid hsl(var(--border) / 0.5);">#${item.id}</td>
+                        <td style="padding: 12px 10px; border-bottom: 1px solid hsl(var(--border) / 0.5);">${item.predicted_units}</td>
+                        <td style="padding: 12px 10px; border-bottom: 1px solid hsl(var(--border) / 0.5);">${formatCurrency(item.total_revenue)}</td>
+                        <td style="padding: 12px 10px; border-bottom: 1px solid hsl(var(--border) / 0.5); font-weight: bold; color: ${color};">${label}</td>
+                    </tr>`;
+            });
+            
+            tableHTML += `</tbody></table>`;
+            historyContainer.innerHTML = tableHTML;
+
+        } catch (error) {
+            console.error(error);
+            historyContainer.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--danger);">Error loading history.</p>';
+        }
+    }
+
+    function generateDetailedReport() {
+        const reportsEmptyState = document.getElementById('reportsEmptyState');
+        const reportsContent = document.getElementById('reportsContent');
+        const reportsTableContainer = document.getElementById('reportsTableContainer');
+        const reportsSummaryGrid = document.getElementById('reportsSummaryGrid');
+        
+        if (!records || records.length === 0 || document.getElementById('emptyState').classList.contains('hidden') === false) {
+            reportsEmptyState.classList.remove('hidden');
+            reportsContent.classList.add('hidden');
+            return;
+        }
+        
+        reportsEmptyState.classList.add('hidden');
+        reportsContent.classList.remove('hidden');
+        
+        let tableHTML = `<table style="width: 100%; text-align: left; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th style="padding: 10px; border-bottom: 2px solid hsl(var(--border)); color: hsl(var(--text-muted)); font-weight: 500;">Month</th>
+                    <th style="padding: 10px; border-bottom: 2px solid hsl(var(--border)); color: hsl(var(--text-muted)); font-weight: 500;">Units Sold</th>
+                    <th style="padding: 10px; border-bottom: 2px solid hsl(var(--border)); color: hsl(var(--text-muted)); font-weight: 500;">Revenue</th>
+                    <th style="padding: 10px; border-bottom: 2px solid hsl(var(--border)); color: hsl(var(--text-muted)); font-weight: 500;">MoM Growth</th>
+                </tr>
+            </thead>
+            <tbody>`;
+            
+        let totalRev = 0;
+        let prevUnits = 0;
+        let bestMonth = { month: "", units: 0 };
+        let worstMonth = { month: "", units: Infinity };
+        
+        records.forEach((r, idx) => {
+            const rev = r.unitsSold * r.sellingPricePerUnit;
+            totalRev += rev;
+            
+            let growthStr = "-";
+            if (idx > 0) {
+                const diff = r.unitsSold - prevUnits;
+                const percent = prevUnits > 0 ? ((diff / prevUnits) * 100).toFixed(1) : 0;
+                const color = diff >= 0 ? "hsl(var(--success))" : "hsl(var(--danger))";
+                const sign = diff > 0 ? "+" : "";
+                growthStr = `<span style="color: ${color}; font-weight: 600;">${sign}${diff} units (${sign}${percent}%)</span>`;
+            }
+            
+            if (r.unitsSold > bestMonth.units) { bestMonth = { month: r.month, units: r.unitsSold }; }
+            if (r.unitsSold < worstMonth.units) { worstMonth = { month: r.month, units: r.unitsSold }; }
+            
+            tableHTML += `
+                <tr>
+                    <td style="padding: 12px 10px; border-bottom: 1px solid hsl(var(--border) / 0.5);">${r.month}</td>
+                    <td style="padding: 12px 10px; border-bottom: 1px solid hsl(var(--border) / 0.5);">${r.unitsSold}</td>
+                    <td style="padding: 12px 10px; border-bottom: 1px solid hsl(var(--border) / 0.5);">${formatCurrency(rev)}</td>
+                    <td style="padding: 12px 10px; border-bottom: 1px solid hsl(var(--border) / 0.5);">${growthStr}</td>
+                </tr>`;
+            
+            prevUnits = r.unitsSold;
+        });
+        
+        tableHTML += `</tbody></table>`;
+        reportsTableContainer.innerHTML = tableHTML;
+        
+        const avgUnits = records.length > 0 ? (records.reduce((acc, r) => acc + r.unitsSold, 0) / records.length).toFixed(0) : 0;
+        
+        reportsSummaryGrid.innerHTML = `
+            <div class="metric-card">
+                <span class="metric-title">Best Performing Month</span>
+                <h4 class="metric-value">${bestMonth.month}</h4>
+                <span class="metric-subtitle">${bestMonth.units} units sold</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-title">Lowest Performing Month</span>
+                <h4 class="metric-value">${worstMonth.month}</h4>
+                <span class="metric-subtitle">${worstMonth.units} units sold</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-title">Average Monthly Sales</span>
+                <h4 class="metric-value">${avgUnits}</h4>
+                <span class="metric-subtitle">Units per month</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-title">Total Historical Revenue</span>
+                <h4 class="metric-value" style="color: hsl(var(--primary));">${formatCurrency(totalRev)}</h4>
+                <span class="metric-subtitle">Sum of all months</span>
+            </div>
+        `;
+        
+        let growthMonths = 0;
+        let declineMonths = 0;
+        records.forEach((r, idx) => {
+            if (idx > 0) {
+                const prev = records[idx-1].unitsSold;
+                if (r.unitsSold > prev) growthMonths++;
+                if (r.unitsSold < prev) declineMonths++;
+            }
+        });
+        
+        const reportsTextContainer = document.getElementById('reportsTextContainer');
+        if (reportsTextContainer) {
+            reportsTextContainer.innerHTML = `
+                <p>Based on the historical data provided, the business generated a total revenue of <strong>${formatCurrency(totalRev)}</strong> over ${records.length} months.</p>
+                <p>The highest sales volume was achieved in <strong>${bestMonth.month}</strong> with <strong>${bestMonth.units} units</strong> sold, while the lowest was in <strong>${worstMonth.month}</strong> with <strong>${worstMonth.units} units</strong>.</p>
+                <p>Looking at month-over-month performance, the business experienced growth in <strong>${growthMonths}</strong> transitions and decline in <strong>${declineMonths}</strong> transitions. The average sales volume stabilized at approximately <strong>${avgUnits} units</strong> per month.</p>
+                <p>This comprehensive view helps identify seasonal trends and overall business trajectory. Use the dashboard's AI insights to understand the strategic impact of these numbers on your future predictions.</p>
+            `;
+        }
     }
 
     // Initial render
